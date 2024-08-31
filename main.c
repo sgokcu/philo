@@ -6,31 +6,80 @@
 /*   By: sgokcu <sgokcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/31 14:43:37 by sgokcu            #+#    #+#             */
-/*   Updated: 2024/08/31 14:54:13 by sgokcu           ###   ########.fr       */
+/*   Updated: 2024/08/31 19:32:37 by sgokcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "philo.h"
 
-int	to_do(t_philosopher *philo)
+
+int	dead_check(t_philosopher *philo)
+{
+	pthread_mutex_lock(&philo->hold->eat_mutex);
+	if (philo->hold->dead_check == DEAD)
+	{
+		pthread_mutex_unlock(&philo->hold->eat_mutex);
+		return (1);
+	}
+	pthread_mutex_unlock(&philo->hold->eat_mutex);
+	return (0);
+}
+
+
+void	to_do(t_philosopher *philo)
 {
 	while (1)
 	{
+		if (dead_check(philo))
+			break ;
 		pthread_mutex_lock(philo->r_fork);
+		if (dead_check(philo))
+		{
+			pthread_mutex_unlock(philo->r_fork);
+			break ;
+		}
 		my_printf(philo, "has taken a fork");
+		if (dead_check(philo))
+		{
+			pthread_mutex_unlock(philo->r_fork);
+			pthread_mutex_unlock(philo->l_fork);
+			break ;
+		}
 		pthread_mutex_lock(philo->l_fork);
+		if (dead_check(philo))
+		{
+			pthread_mutex_unlock(philo->r_fork);
+			pthread_mutex_unlock(philo->l_fork);
+			break ;
+		}
 		my_printf(philo, "has taken a fork");
 		my_printf(philo, "is eating");
+		if (dead_check(philo))
+		{
+			pthread_mutex_unlock(philo->r_fork);
+			pthread_mutex_unlock(philo->l_fork);
+			break ;
+		}
 		pthread_mutex_lock(&philo->hold->eat_mutex);
 		philo->eat_count++;
 		philo->last_eat = time_milisecond(philo->hold);
 		pthread_mutex_unlock(&philo->hold->eat_mutex);
 		ft_sleep(philo, philo->hold->time_to_eat);
+		if (dead_check(philo))
+		{
+			pthread_mutex_unlock(philo->r_fork);
+			pthread_mutex_unlock(philo->l_fork);
+			break ;
+		}
 		pthread_mutex_unlock(philo->r_fork);
 		pthread_mutex_unlock(philo->l_fork);
 		my_printf(philo, "is sleeping");
 		ft_sleep(philo, philo->hold->time_to_sleep);
+		if (dead_check(philo))
+			break ;
 		my_printf(philo, "is thinking");
+		if (dead_check(philo))
+			break ;
 	}
 }
 
@@ -42,8 +91,10 @@ int	check_status(t_hold *hold, int i)
 		pthread_mutex_lock(&hold->eat_mutex);
 		if (hold->philosopher[i].status == DEAD)
 		{
-			printf("%ld\t%d died\n", time_milisecond(hold),
+			hold->dead_check = 0;
+			printf("%ld\t%d died\n", time_milisecond(hold), 
 				hold->philosopher[i].pn);
+			pthread_mutex_unlock(&hold->eat_mutex);
 			return (0);
 		}
 		pthread_mutex_unlock(&hold->eat_mutex);
@@ -54,7 +105,11 @@ int	check_status(t_hold *hold, int i)
 		if (hold->philosopher[i].eat_count < hold->num_must_eat)
 			break ;
 	if (hold->num_must_eat != -1 && i == hold->num_of_philo)
+	{
+		hold->dead_check = 0;
+		pthread_mutex_unlock(&hold->eat_mutex);
 		return (0);
+	}
 	pthread_mutex_unlock(&hold->eat_mutex);
 	return (1);
 }
@@ -62,6 +117,7 @@ int	check_status(t_hold *hold, int i)
 int	philo_make(t_hold *hold, int i)
 {
 	hold->start_time = 0;
+	hold->dead_check = 1;
 	hold->start_time = time_milisecond(hold);
 	hold->philosopher = malloc(sizeof(t_philosopher) * hold->num_of_philo);
 	hold->fork = malloc(sizeof(pthread_mutex_t) * hold->num_of_philo);

@@ -6,7 +6,7 @@
 /*   By: sgokcu <sgokcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/31 14:50:41 by sgokcu            #+#    #+#             */
-/*   Updated: 2024/08/31 14:53:02 by sgokcu           ###   ########.fr       */
+/*   Updated: 2024/08/31 19:32:51 by sgokcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -41,6 +41,7 @@ typedef struct s_hold
 	int				time_to_sleep;
 	int				num_must_eat;
 	int				eat_count;
+	int				dead_check;
 	long			start_time;
 	struct timeval	time_val;
 	pthread_mutex_t	eat_mutex;
@@ -58,7 +59,7 @@ int		ft_atoi(const char *str);
 int		ft_isalpha(int c);
 int		ft_arg_check(char **av);
 int		my_exit(t_hold *hold);
-int		to_do(t_philosopher *philo);
+void	to_do(t_philosopher *philo);
 int		check_status(t_hold *hold, int i);
 int		philo_make(t_hold *hold, int i);
 int		p_control(t_hold *hold);

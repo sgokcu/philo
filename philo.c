@@ -6,7 +6,7 @@
 /*   By: sgokcu <sgokcu@student.42.fr>              +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2024/08/31 14:47:55 by sgokcu            #+#    #+#             */
-/*   Updated: 2024/08/31 14:48:15 by sgokcu           ###   ########.fr       */
+/*   Updated: 2024/08/31 19:33:09 by sgokcu           ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -46,6 +46,10 @@ long	time_milisecond(t_hold	*hold)
 
 int	my_exit(t_hold *hold)
 {
+	int i = -1;
+
+	while (++i < hold->num_of_philo)
+		pthread_join(hold->philosopher[i].thread, NULL);
 	free (hold->philosopher);
 	free (hold->fork);
 	pthread_mutex_destroy(&hold->eat_mutex);
