@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   utils.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sgokcu <sgokcu@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/31 14:48:24 by sgokcu            #+#    #+#             */
+/*   Updated: 2024/08/31 14:49:38 by sgokcu           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 int	ft_atoi(const char *str)
@@ -32,18 +44,18 @@ int	ft_isalpha(int c)
 	return (0);
 }
 
-int ft_arg_check(char **av)
+int	ft_arg_check(char **av)
 {
-	int i;
-	int j;
+	int	i;
+	int	j;
 
 	i = 1;
 	j = 0;
-	while(av[i])
+	while (av[i])
 	{
-		while(av[i][j])
+		while (av[i][j])
 		{
-			if(ft_isalpha(av[i][j]))
+			if (ft_isalpha(av[i][j]))
 				return (0);
 			j++;
 		}
@@ -52,34 +64,35 @@ int ft_arg_check(char **av)
 	}
 	return (1);
 }
-void placing(t_hold *hold, int ac, char **av)
+
+void	placing(t_hold *hold, int ac, char **av)
 {
-	int i;
+	int	i;
 
 	i = 1;
-	hold->number_of_philosophers = ft_atoi(av[i++]);
+	hold->num_of_philo = ft_atoi(av[i++]);
 	hold->time_to_die = ft_atoi(av[i++]);
 	hold->time_to_eat = ft_atoi(av[i++]);
 	hold->time_to_sleep = ft_atoi(av[i++]);
 	if (ac == 6)
-		hold->number_of_times_each_philosopher_must_eat = ft_atoi(av[i]);
+		hold->num_must_eat = ft_atoi(av[i]);
 	else
-		hold->number_of_times_each_philosopher_must_eat = -1;
+		hold->num_must_eat = -1;
 }
 
-void *version(void *p)
+void	*version(void *p)
 {
-	t_philosopher *philo;
+	t_philosopher	*philo;
 
 	philo = (t_philosopher *)p;
-	if(philo->hold->number_of_philosophers == 1)
+	if (philo->hold->num_of_philo == 1)
 	{
 		ft_sleep(philo, philo->hold->time_to_die);
 		p_check(philo);
 		usleep(2000);
 	}
-	if(philo->pn % 2 == 0)
-		usleep(700);
+	if (philo->pn % 2 == 0)
+		usleep(750);
 	to_do(philo);
 	return (NULL);
 }

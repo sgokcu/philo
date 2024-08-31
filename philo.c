@@ -1,3 +1,15 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   philo.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: sgokcu <sgokcu@student.42.fr>              +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2024/08/31 14:47:55 by sgokcu            #+#    #+#             */
+/*   Updated: 2024/08/31 14:48:15 by sgokcu           ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "philo.h"
 
 void	ft_sleep(t_philosopher *p, long time)
@@ -12,9 +24,9 @@ void	ft_sleep(t_philosopher *p, long time)
 void	p_check(t_philosopher *p)
 {
 	pthread_mutex_lock(&p->hold->eat_mutex);
-	if((time_milisecond(p->hold) - p->hold->time_to_die) > p->hold->time_to_die)
+	if ((time_milisecond(p->hold) - p->last_eat) > p->hold->time_to_die)
 		p->status = DEAD;
-	pthread_mutex_unlock(&p->hold->eat_count);
+	pthread_mutex_unlock(&p->hold->eat_mutex);
 }
 
 void	my_printf(t_philosopher *philosopher, char	*msg)

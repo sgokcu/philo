@@ -1,5 +1,5 @@
 NAME	=	philo
-SRC		=	main.c utils.c
+SRC		=	main.c utils.c philo.c
 OBJS 	= 	$(SRC:.c=.o)
 CC 		= 	gcc
 CFLAGS 	=	-Wall -Wextra -Werror
