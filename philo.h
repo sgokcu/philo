@@ -56,12 +56,13 @@ void	p_check(t_philosopher *p);
 void	my_printf(t_philosopher *philosopher, char	*msg);
 long	time_milisecond(t_hold	*hold);
 int		ft_atoi(const char *str);
-int		ft_isalpha(int c);
+int		ft_isnum(int c);
 int		ft_arg_check(char **av);
 int		my_exit(t_hold *hold);
 void	to_do(t_philosopher *philo);
 int		check_status(t_hold *hold, int i);
 int		philo_make(t_hold *hold, int i);
 int		p_control(t_hold *hold);
+int		check_and_unlock(t_philosopher *philo, int mean);
 
 #endif

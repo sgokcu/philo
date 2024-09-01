@@ -12,106 +12,54 @@
 
 #include "philo.h"
 
-
-int	dead_check(t_philosopher *philo)
+void	philo_eating(t_philosopher *philo)
 {
 	pthread_mutex_lock(&philo->hold->eat_mutex);
-	if (philo->hold->dead_check == DEAD)
-	{
-		pthread_mutex_unlock(&philo->hold->eat_mutex);
-		return (1);
-	}
+	philo->eat_count++;
+	philo->last_eat = time_milisecond(philo->hold);
 	pthread_mutex_unlock(&philo->hold->eat_mutex);
-	return (0);
+	ft_sleep(philo, philo->hold->time_to_eat);
 }
 
+int	to_do_continue(t_philosopher *philo)
+{
+	if (check_and_unlock(philo, 0) == 0)
+		return (0);
+	pthread_mutex_lock(philo->r_fork);
+	if (check_and_unlock(philo, 1) == 0)
+		return (0);
+	my_printf(philo, "has taken a fork");
+	if (check_and_unlock(philo, 1) == 0)
+		return (0);
+	pthread_mutex_lock(philo->l_fork);
+	if (check_and_unlock(philo, 2) == 0)
+		return (0);
+	my_printf(philo, "has taken a fork");
+	my_printf(philo, "is eating");
+	if (check_and_unlock(philo, 2) == 0)
+		return (0);
+	return (1);
+}
 
 void	to_do(t_philosopher *philo)
 {
 	while (1)
 	{
-		if (dead_check(philo))
+		if (to_do_continue(philo) == 0)
 			break ;
-		pthread_mutex_lock(philo->r_fork);
-		if (dead_check(philo))
-		{
-			pthread_mutex_unlock(philo->r_fork);
+		philo_eating(philo);
+		if (check_and_unlock(philo, 2) == 0)
 			break ;
-		}
-		my_printf(philo, "has taken a fork");
-		if (dead_check(philo))
-		{
-			pthread_mutex_unlock(philo->r_fork);
-			pthread_mutex_unlock(philo->l_fork);
-			break ;
-		}
-		pthread_mutex_lock(philo->l_fork);
-		if (dead_check(philo))
-		{
-			pthread_mutex_unlock(philo->r_fork);
-			pthread_mutex_unlock(philo->l_fork);
-			break ;
-		}
-		my_printf(philo, "has taken a fork");
-		my_printf(philo, "is eating");
-		if (dead_check(philo))
-		{
-			pthread_mutex_unlock(philo->r_fork);
-			pthread_mutex_unlock(philo->l_fork);
-			break ;
-		}
-		pthread_mutex_lock(&philo->hold->eat_mutex);
-		philo->eat_count++;
-		philo->last_eat = time_milisecond(philo->hold);
-		pthread_mutex_unlock(&philo->hold->eat_mutex);
-		ft_sleep(philo, philo->hold->time_to_eat);
-		if (dead_check(philo))
-		{
-			pthread_mutex_unlock(philo->r_fork);
-			pthread_mutex_unlock(philo->l_fork);
-			break ;
-		}
 		pthread_mutex_unlock(philo->r_fork);
 		pthread_mutex_unlock(philo->l_fork);
 		my_printf(philo, "is sleeping");
 		ft_sleep(philo, philo->hold->time_to_sleep);
-		if (dead_check(philo))
+		if (check_and_unlock(philo, 0) == 0)
 			break ;
 		my_printf(philo, "is thinking");
-		if (dead_check(philo))
+		if (check_and_unlock(philo, 0) == 0)
 			break ;
 	}
-}
-
-int	check_status(t_hold *hold, int i)
-{
-	while (++i < hold->num_of_philo)
-	{
-		p_check(&hold->philosopher[i]);
-		pthread_mutex_lock(&hold->eat_mutex);
-		if (hold->philosopher[i].status == DEAD)
-		{
-			hold->dead_check = 0;
-			printf("%ld\t%d died\n", time_milisecond(hold), 
-				hold->philosopher[i].pn);
-			pthread_mutex_unlock(&hold->eat_mutex);
-			return (0);
-		}
-		pthread_mutex_unlock(&hold->eat_mutex);
-	}
-	i = -1;
-	pthread_mutex_lock(&hold->eat_mutex);
-	while (hold->num_must_eat != -1 && ++i < hold->num_of_philo)
-		if (hold->philosopher[i].eat_count < hold->num_must_eat)
-			break ;
-	if (hold->num_must_eat != -1 && i == hold->num_of_philo)
-	{
-		hold->dead_check = 0;
-		pthread_mutex_unlock(&hold->eat_mutex);
-		return (0);
-	}
-	pthread_mutex_unlock(&hold->eat_mutex);
-	return (1);
 }
 
 int	philo_make(t_hold *hold, int i)
@@ -142,28 +90,17 @@ int	philo_make(t_hold *hold, int i)
 	return (1);
 }
 
-int	p_control(t_hold *hold)
-{
-	int	c;
-
-	c = 1;
-	if (philo_make(hold, -1) == 0)
-		c = my_exit(hold);
-	while (c)
-		if (check_status(hold, -1) == 0)
-			c = my_exit(hold);
-	return (c);
-}
-
 int	main(int ac, char **av)
 {
 	t_hold	hold;
 
 	if (ac < 5 || ac > 6)
-		return (printf("please enter a correct amaont of args :)\n"));
+		return (printf("please enter a correct amount of args :)\n"));
 	if (!ft_arg_check(av))
-		return (printf(("plese write args in the correct way :)\n")));
+		return (printf(("please write args in the correct way :)\n")));
 	placing(&hold, ac, av);
+	if (hold.num_of_philo == 0)
+		return (printf(("please write args in the correct way :)\n")));
 	if (p_control(&hold) == 0)
 		return (0);
 	return (1);

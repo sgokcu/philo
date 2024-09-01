@@ -24,7 +24,7 @@ void	ft_sleep(t_philosopher *p, long time)
 void	p_check(t_philosopher *p)
 {
 	pthread_mutex_lock(&p->hold->eat_mutex);
-	if ((time_milisecond(p->hold) - p->last_eat) > p->hold->time_to_die)
+	if ((time_milisecond(p->hold) - p->last_eat) >= p->hold->time_to_die)
 		p->status = DEAD;
 	pthread_mutex_unlock(&p->hold->eat_mutex);
 }
@@ -46,8 +46,9 @@ long	time_milisecond(t_hold	*hold)
 
 int	my_exit(t_hold *hold)
 {
-	int i = -1;
+	int	i;
 
+	i = -1;
 	while (++i < hold->num_of_philo)
 		pthread_join(hold->philosopher[i].thread, NULL);
 	free (hold->philosopher);

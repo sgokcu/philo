@@ -37,11 +37,11 @@ int	ft_atoi(const char *str)
 	return (res * sign);
 }
 
-int	ft_isalpha(int c)
+int	ft_isnum(int c)
 {
-	if ((c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z'))
-		return (1);
-	return (0);
+	if (c >= '0' && c <= '9')
+		return (0);
+	return (1);
 }
 
 int	ft_arg_check(char **av)
@@ -55,7 +55,7 @@ int	ft_arg_check(char **av)
 	{
 		while (av[i][j])
 		{
-			if (ft_isalpha(av[i][j]))
+			if (ft_isnum(av[i][j]))
 				return (0);
 			j++;
 		}

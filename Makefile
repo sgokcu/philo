@@ -1,8 +1,8 @@
 NAME	=	philo
-SRC		=	main.c utils.c philo.c
+SRC		=	main.c utils.c philo.c check.c
 OBJS 	= 	$(SRC:.c=.o)
 CC 		= 	gcc
-CFLAGS 	=	-Wall -Wextra -Werror -fsanitize=thread -g
+CFLAGS 	=	-Wall -Wextra -Werror
 RM	 	= 	rm -rf
 
 $(NAME): $(OBJS)
